@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "title": "GPT Image",
+    "description": "Generates and edits images with GPT Image 2.6 Flare, Sunburst and Economy on kie.ai."
+  },
+  "panel": {
+    "title": "GPT Image"
+  },
+  "tabs": {
+    "text2image": "Text to image",
+    "image2image": "Image to image"
+  },
+  "fields": {
+    "prompt": "Prompt",
+    "aspectRatio": "Aspect ratio",
+    "size": "Resolution",
+    "format": "Format",
+    "quality": "Quality",
+    "model": "Model",
+    "background": "Background",
+    "sourceImage": "Source image",
+    "referenceImages": "Reference images"
+  },
+  "actions": {
+    "generate": "Generate",
+    "edit": "Edit image",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "download": "Download",
+    "clearHistory": "Clear history",
+    "remove": "Remove",
+    "forgetKey": "Forget key",
+    "save": "Save",
+    "expand": "Click to expand",
+    "close": "Close",
+    "prev": "Previous image",
+    "next": "Next image",
+    "useAsInput": "Use as input",
+    "useAsInputHint": "Load this result into the source image input",
+    "copyPrompt": "Copy prompt",
+    "loading": "Loading…"
+  },
+  "status": {
+    "credits": "Credits",
+    "empty": "Results appear here.",
+    "unsigned": "Add a kie.ai API key to start.",
+    "working": "Generating…",
+    "gallery": "Gallery",
+    "promptCopied": "Prompt copied.",
+    "usedAsInput": "Sent to the image input."
+  }
+}

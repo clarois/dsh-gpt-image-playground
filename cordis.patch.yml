@@ -1,0 +1,3 @@
+- insert:
+    - id: gpt-image-playground
+      name: 'dsh-gpt-image-playground'
