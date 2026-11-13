@@ -111,20 +111,25 @@ async function main() {
     },
     webServer: {
       register(route) {
-        ctx.__route = route
+        ctx.__routes.set(route.path, route)
+        if (route.path === '/gpt-image-playground/api') ctx.__route = route
         return () => {
-          ctx.__route = undefined
+          ctx.__routes.delete(route.path)
+          if (ctx.__route === route) ctx.__route = undefined
         }
       },
     },
   }
 
   const CFG = { apiBase: API, uploadBase: UPLOAD, pollStartMs: 25 }
+  ctx.__routes = new Map()
   host.apply(ctx, CFG)
   assert.ok(ctx.__route, 'apply must register the API route')
   assert.strictEqual(ctx.__route.kind, 'prefix')
   assert.strictEqual(ctx.__route.path, '/gpt-image-playground/api')
   assert.strictEqual(typeof ctx.__route.handler, 'function')
+  assert.ok(ctx.__routes.has('/gpt-image-playground'), 'apply must register the API-doc route')
+  assert.strictEqual(ctx.__routes.get('/gpt-image-playground').kind, 'prefix')
 
   /* ------------------------------------------------- request validation (pure) */
 

@@ -1066,6 +1066,17 @@ const METHODS = {
  * Every JSON response is `{ ok: true, value }` or `{ ok: false, error, stage }`,
  * so the panel can show kie.ai's own message and say which stage failed.
  */
+/** Write a plain HTML document; used only by the API-doc route. */
+function sendHtml(res, status, html) {
+  const payload = Buffer.from(html, 'utf8')
+  res.writeHead(status, {
+    'content-type': 'text/html; charset=utf-8',
+    'content-length': String(payload.byteLength),
+    'cache-control': 'no-store',
+  })
+  res.end(payload)
+}
+
 function createHandler(ctx, config) {
   return async function handle(req, res) {
     const url = new URL(req.url ?? '/', 'http://localhost')
@@ -1193,13 +1204,68 @@ function readBody(req, limit = 40 * 1024 * 1024) {
  */
 export function apply(ctx, config) {
   const resolved = config ?? {}
+  const handler = createHandler(ctx, resolved)
   ctx.effect(
     () =>
       ctx.webServer.register({
         kind: 'prefix',
         path: ROUTE_PATH,
-        handler: createHandler(ctx, resolved),
+        handler,
       }),
     'gpt-image-playground/api-route',
+  )
+  // The browser half is a separate bundle: this route is its only way back to
+  // the Host. Every GET below answers a question the panel would otherwise
+  // have to ask with a POST, which lets a human open the panel's own API in a
+  // browser tab to check that this plugin is live (and that its untouched
+  // Seedream sibling is not serving this path).
+  ctx.effect(
+    () =>
+      ctx.webServer.register({
+        kind: 'prefix',
+        path: '/gpt-image-playground',
+        handler: (req, res) => {
+          if (req.method !== 'GET' && req.method !== 'HEAD') {
+            handler(req, res)
+            return
+          }
+          sendHtml(res, 200, `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GPT Image playground API</title>
+<style>
+body{font:14px/1.5 system-ui,sans-serif;margin:40px;max-width:760px;color:#1c1c1e}
+h1{font-size:18px}
+code{background:#f2f2f7;padding:1px 5px;border-radius:4px}
+li{margin:4px 0}
+</style>
+</head>
+<body>
+<h1>GPT Image playground</h1>
+<p>The Host half of this bundle is live. This document is served by
+<code>dsh-gpt-image-playground</code>, not by the Seedream plugin.</p>
+<p>Its panel talks to the Host over this route with <code>POST</code>:</p>
+<ul>
+<li><code>POST ${ROUTE_PATH}/status</code></li>
+<li><code>POST ${ROUTE_PATH}/credits</code></li>
+<li><code>POST ${ROUTE_PATH}/startJob</code></li>
+<li><code>POST ${ROUTE_PATH}/cancelJob</code></li>
+<li><code>POST ${ROUTE_PATH}/listHistory</code></li>
+<li><code>POST ${ROUTE_PATH}/clearHistory</code></li>
+<li><code>POST ${ROUTE_PATH}/removeHistory</code></li>
+<li><code>POST ${ROUTE_PATH}/downloadLink</code></li>
+<li><code>POST ${ROUTE_PATH}/setApiKey</code></li>
+<li><code>POST ${ROUTE_PATH}/clearApiKey</code></li>
+<li><code>GET  ${ROUTE_PATH}/stored?id=…&amp;mediaType=…&amp;width=…&amp;height=…&amp;bytes=…</code></li>
+<li><code>GET  ${ROUTE_PATH}/imageBytes?url=…</code></li>
+<li><code>GET  ${ROUTE_PATH}/download?url=…</code></li>
+</ul>
+</body>
+</html>
+`)
+        },
+      }),
+    'gpt-image-playground/api-doc',
   )
 }
