@@ -26,6 +26,12 @@
 const DEFAULT_API_BASE = 'https://api.kie.ai'
 const DEFAULT_UPLOAD_BASE = 'https://kieai.redpandaai.co'
 const DEFAULT_ENV_NAME = 'KIE_API_KEY'
+/**
+ * Where finished images are also written on disk. Results are always stored as
+ * Host attachments; this is the extra copy the user browses directly, so it
+ * defaults to the same folder the Seedream plugin writes to.
+ */
+const DEFAULT_SAVE_DIRECTORY = 'D:\\[ Work ]\\Seedream output'
 const ROUTE_PATH = '/gpt-image-playground/api'
 
 const HISTORY_LIMIT = 100
@@ -66,7 +72,7 @@ const configSchema =
         apiKeyEnv: z.string().default(DEFAULT_ENV_NAME),
         apiBase: z.string().default(DEFAULT_API_BASE),
         uploadBase: z.string().default(DEFAULT_UPLOAD_BASE),
-        saveDirectory: z.string().default(''),
+        saveDirectory: z.string().default(DEFAULT_SAVE_DIRECTORY),
         pollStartMs: z.number().default(POLL_START_MS),
       })
     : undefined
